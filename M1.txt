@@ -1,0 +1,105 @@
+from google.colab import files 
+uploaded = files.upload()
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+#To run particular output select that query and press ctrl+shift+Enter
+
+
+df=pd.read_csv("Heart.csv")
+
+#a) find shape of the data
+print("\n\n")
+print("The shape of data (rows and coloumn) in given dataset are:", df.shape)
+print("\n\n")
+
+#b)Find Missing Values
+print("The Missing Values in given dataset are:", df.isnull().sum())
+print("\n\n")
+
+
+#c)Find the datatype of each column
+print("datatype of each column", df.dtypes)
+print("\n\n")
+
+#d)Finding out zero's
+print("Zero's value in given dataset:", df[df == 0].count())
+print("\n\n")
+
+#e)Mean age of patient
+print("Mean age of patient:", df['Age'].mean())
+print("\n\n")
+
+
+#f)Extract only Age, Sex, ChestPain, RestBP and Cholesterol. Randomly divide dataset in 
+#training (75%) and testing (25%).
+print("Extract Age, Sex, ChestPain, RestBP, Chol.")
+print("\n")
+newdf = df[['Age','Sex','ChestPain','RestBP','Chol']]
+print(newdf)
+print("\n\n")
+
+
+from sklearn.model_selection import train_test_split 
+#train_test_split is a method used for spliting the dataset into training and testing dataset
+train, test = train_test_split(df, random_state=0,test_size=0.25)
+print("Training Dataset:", train.shape)
+print("\n")
+print("Testing Dataset:", test.shape)
+print("\n\n\n")
+
+
+#Confusion Matrix
+#Create confusion matrix based on above data and find
+#I.   Accuracy
+#II.  Perception
+#III. Recall
+#IV.  F1- Score
+
+
+actual = list(np.ones(45))+list(np.zeros(55))
+print(actual)
+print("\n\n")
+
+
+predicted = list(np.ones(40))+list(np.zeros(52))+list(np.ones(8))
+print(predicted)
+print("\n\n")
+
+
+#Expected Output
+from sklearn.metrics import ConfusionMatrixDisplay
+ConfusionMatrixDisplay.from_predictions(actual, predicted)
+
+
+#Accuracy
+from sklearn.metrics import accuracy_score
+print("Accuracy:", accuracy_score(actual,predicted))
+print("\n\n")
+
+#Precision
+from sklearn.metrics import precision_score
+print("Precesion:", precision_score(actual,predicted))
+print("\n\n")
+
+
+#Recall
+from sklearn.metrics import recall_score
+print("Recall:", recall_score(actual,predicted))
+print("\n\n")
+
+#F1 Score
+from sklearn.metrics import f1_score
+print("F1 Score:", f1_score(actual,predicted))
+
+
+
+
+
+
+
+
+
+
+
+

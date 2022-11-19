@@ -1,0 +1,69 @@
+from google.colab import files 
+uploaded = files.upload()
+import pandas as pd
+import seaborn as sn
+
+
+
+df=pd.read_csv("Admission_Predict.csv")
+
+print("\n\n")
+print("The shape of data is:", df.shape)
+print("\n\n")
+
+print(df.head(5))
+print(df.columns)
+
+#a)Data Preprocessing
+
+from sklearn.preprocessing import Binarizer
+bn=Binarizer(threshold=0.75)
+#print(bn)
+df['Chance of Admit ']=bn.fit_transform (df[['Chance of Admit ']])
+
+print(df.head)
+x=df.drop('Chance of Admit ', axis=1)
+print(x)
+
+y=df['Chance of Admit ']
+y=y.astype('int')
+print(y)
+print("\n")
+sn.countplot(x=y);
+print(y.value_counts())
+
+#b)data preperation
+
+from sklearn.model_selection import train_test_split 
+x_train,x_test,y_train,y_test = train_test_split(x,y, random_state=0,test_size=0.25)
+print("Training Dataset:", x_train.shape)
+print("Testing Dataset:", x_test.shape)
+
+# Decision Tree
+
+from sklearn.tree import DecisionTreeClassifier
+classifier=DecisionTreeClassifier(random_state=0)
+classifier.fit(x_train,y_train)
+y_pred=classifier.predict(x_test)
+result=pd.DataFrame({'actual':y_test,'predict':y_pred})
+print(result)
+#print(result.head(20))
+
+#c)
+
+from sklearn.metrics import ConfusionMatrixDisplay,accuracy_score
+from sklearn.metrics import classification_report
+ConfusionMatrixDisplay.from_predictions(y_test,y_pred)
+
+from sklearn.metrics import accuracy_score
+print("Accuracy:", accuracy_score(y_test,y_pred))
+
+print(classification_report(y_test,y_pred))
+
+#Decision Tree
+import matplotlib.pyplot as plt
+from sklearn.tree import plot_tree
+plt.figure(figsize=(12,12))
+plot_tree(classifier,fontsize=8,filled=True,rounded=True,feature_names=x.columns,class_names=('NA','AD'));
+
+

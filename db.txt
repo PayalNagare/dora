@@ -1,0 +1,101 @@
+
+# creation of database:
+> use ADBMS
+
+# creation of table:
+> db.createCollection("Student")
+
+# inserting data in collection:
+> db.Student.insert({S_Id:1,S_Name:"Payal",Percent:85,Address:"Nashik"})
+
+# Displaying data:
+> db.Student.find().pretty()
+
+# delete perticular record:
+> db.Student.remove({S_Id:5})
+
+# find student whose name is kajol and percent is 66: 
+> db.Student.find({S_Name:"Kajol",Percent:{$eq:66}}).pretty()
+
+# find student whose id is 22 ($eq=equal to)
+> db.Student.find({S_Id:{$eq:22}}).pretty()
+
+# find student whose name is kiran OR percent is 80: 
+> db.Student.find({$or:[{S_Name:"Kiran"},{Percent:{$eq:80}}]}).pretty()
+
+# find student having Percent>55: 
+> db.Student.find({Percent:{$gt:55}}).pretty()
+
+# find having percent=85 and address=Nashik:  
+> db.Student.find({$and:[{Percent:85},{Address:"Nashik"}]}).pretty()
+
+# find having S_Id is 12:
+> db.Student.find({S_Id:4}).pretty()
+
+# or
+> db.Student.find({$or:[{Percent:85},{Address:"Nashik"}]}).pretty()
+
+> db.Student.find({$or:[{Address:"Pune"},{Address:"Nashik"}]}).pretty()
+
+
+# sort: ascending order:
+> db.Student.find().sort({S_Id:1}).pretty()
+
+# sort: decending order:
+> db.Student.find().sort({S_Id:-1}).pretty()
+
+# count of data:
+> db.Student.find().count()
+
+# updateMany:
+> db.Student.updateMany({Address:"Nashik"},{$set:{Address:"New Nashik"}})
+
+# display first 4 docs :
+> db.Student.find().limit(4).pretty()
+
+# skip first 2 docs :
+> db.Student.find().skip(4).pretty()
+
+# Max percent:
+> db.Student.aggregate([ {"$group":{ "_id":null, "Max_Percent":{"$max":"$Percent"} }} ])
+
+#
+> db.Student.distinct("Address");
+
+# indexing:
+> db.Student.ensureIndex({S_Id:1},{collation:{locale:"fr"}})
+
+# MapReduce:
+> db.Student.mapReduce(
+... function(){emit(this.S_Name,1)},
+... function(key,values){return Array.sum(values)},
+... {out:"Total_Names"})
+
+
+> db.Student.mapReduce( function(){emit(this.S_Name,1)}, function(key,values){return Array.sum(values)}, {out:"Total_Names"}).find()
+
+
+> db.Student.mapReduce(function(){emit(this.S_Name,this.Percent)},function(key,values){return Array.sum(values)},{out:"Total_Names"}).find().sort({value:1})
+
+
+> db.Student.mapReduce(function(){emit(this.S_Name,this.Percent)},function(key,values){return Array.sum(values)},{out:"Total_Names"}).find().sort({value:-1})
+
+
+> db.Student.mapReduce(function(){emit(this.S_Name,this.Percent)},function(key,values){return Array.sum(values)},{query:{Percent:{$gt:66}},out:"Total_Names"}).find()
+
+
+# Aggregate:
+> db.Student.aggregate({$sort:{S_Name:1}}).pretty()
+
+# display student whose name start with 'p':
+> db.Student.find({S_Name:{$regex:/^p/i}}).pretty()
+
+# display total no of docs:
+> db.Student.find([{$group:{_id:null,count:{$num:1}}}])
+ 
+ 
+
+
+
+
+

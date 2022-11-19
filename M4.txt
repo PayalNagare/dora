@@ -1,0 +1,106 @@
+from google.colab import files
+uploaded=files.upload()
+import pandas as pd
+import seaborn as sn
+import nltk
+
+df=pd.read_csv('SMSSpamCollection', sep='\t', names=['label','text'])
+
+print(df)
+print(df.shape)
+nltk.download('stopwords')
+nltk.download('punkt')
+sent = 'How are you friends?'
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+swords = stopwords.words('english')
+from nltk.stem import PorterStemmer
+ps = PorterStemmer()
+
+#A]Data pre-processing
+def clean_text(sent):
+  tokens = word_tokenize(sent)
+  clean = [word for word in  tokens
+           if word.isdigit()or word.isalpha()]
+
+  clean =[ps.stem(word) for word in clean 
+          if word not in swords]
+  return(clean)
+clean_text(sent)
+from sklearn.feature_extraction.text import TfidfVectorizer
+tfidf = TfidfVectorizer(analyzer=clean_text)
+x=df['text']
+y=df['label']
+
+print(x)
+print(y)
+
+x_new=tfidf.fit_transform(x)
+print(x.shape)
+print(x_new.shape)
+
+tfidf.get_feature_names()
+y.value_counts()
+
+#b) Train-Test-Split(Cross Validation)
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test=train_test_split(x_new,y, random_state=0,test_size=.25)
+x_train.shape
+x_test.shape
+
+#c) Machine Learning Algorithm
+
+#1 Naive Bayes Algorithm
+
+from sklearn.naive_bayes import GaussianNB
+nb=GaussianNB()
+nb.fit(x_train.toarray(),y_train)
+y_pred=nb.predict(x_test.toarray())
+y_test.value_counts()
+
+from sklearn.metrics import ConfusionMatrixDisplay
+ConfusionMatrixDisplay.from_predictions(y_test,y_pred)
+
+from sklearn.metrics import accuracy_score, classification_report
+print(classification_report(y_test,y_pred))
+
+accuracy_score(y_test,y_pred)
+
+#2 Random Forest Algorithm
+
+from sklearn.ensemble import RandomForestClassifier
+rf=RandomForestClassifier(random_state=0)
+rf.fit(x_train,y_train)
+
+y_pred=rf.predict(x_test)
+ConfusionMatrixDisplay.from_predictions(y_test,y_pred)
+print(classification_report(y_test,y_pred))
+
+accuracy_score(y_test,y_pred)
+
+#3 Logistic Regression
+
+from sklearn.linear_model import LogisticRegression
+log=LogisticRegression()
+log.fit(x_train,y_train)
+y_pred=log.predict(x_test)
+ConfusionMatrixDisplay.from_predictions(y_test,y_pred)
+print(classification_report(y_test,y_pred))
+
+accuracy_score(y_test,y_pred)
+
+#e) Hyper Parameter Tuning
+
+from sklearn.model_selection import GridSearchCV
+params={
+    'criterion':['gini','entropy'],
+    'max_features':['sqrt','log2'],
+    'random_state':[0,1,2,3,4],
+    'class_weight':['balanced','balanced_subsample']
+}
+grid=GridSearchCV(rf,param_grid=params,cv=5, scoring='accuracy')
+grid.fit(x_train,y_train)
+rf=grid.best_estimator_
+y_pred=rf.predict(x_test)
+accuracy_score(y_test, y_pred)
